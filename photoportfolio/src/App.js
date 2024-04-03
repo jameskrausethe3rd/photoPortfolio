@@ -7,13 +7,19 @@ firebase.initializeApp(firebaseConfig);
 
 const ImageGallery = () => {
   const [images, setImages] = useState([]);
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [uploading, setUploading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     fetchImages();
   }, []);
+
+  useEffect(() => {
+    if (images.length > 0) {
+      const randomIndex = Math.floor(Math.random() * images.length);
+      const randomImageUrl = images[randomIndex].url;
+      document.querySelector('.background').style.backgroundImage = `url(${randomImageUrl})`;
+    }
+  }, [images]);
 
   const fetchImages = async () => {
     const storageRef = firebase.storage().ref();
@@ -25,41 +31,14 @@ const ImageGallery = () => {
       return { url, name: item.name };
     }));
 
-    // Sort images by filename
+    // Sort images by filename in descending order
     urls.sort((a, b) => {
-      if (a.name < b.name) return -1;
-      if (a.name > b.name) return 1;
+      if (a.name < b.name) return 1;
+      if (a.name > b.name) return -1;
       return 0;
     });
 
-    // Get the latest 5 images for carousel
-    const latestImagesForCarousel = urls.slice(0, 5).map(image => image.url);
-
     setImages(urls);
-  };
-
-  const handleUpload = async () => {
-    setUploading(true);
-
-    const storageRef = firebase.storage().ref();
-
-    for (let i = 0; i < selectedFiles.length; i++) {
-      const file = selectedFiles[i];
-      const imagesRef = storageRef.child(`images/${file.name}`);
-      await imagesRef.put(file);
-    }
-
-    // After successful upload, refresh the image gallery
-    await fetchImages();
-
-    // Clear selected files and set uploading to false
-    setSelectedFiles([]);
-    setUploading(false);
-  };
-
-  const handleFileChange = (e) => {
-    const files = e.target.files;
-    setSelectedFiles([...selectedFiles, ...files]);
   };
 
   const openModal = (image) => {
@@ -69,55 +48,40 @@ const ImageGallery = () => {
   };
 
   return (
-    <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <h1 className="text-center my-4">Upload Images</h1>
-      <div className="mb-3">
-        <input type="file" className="form-control" id="upload" onChange={handleFileChange} multiple />
-      </div>
-      <button className="btn btn-primary mb-3" onClick={handleUpload} disabled={selectedFiles.length === 0 || uploading}>
-        {uploading ? 'Uploading...' : 'Upload'}
-      </button>
-      <div id="carouselExampleIndicators" className="carousel slide mb-4" style={{ height: '400px', overflow: 'hidden' }} data-bs-ride="carousel">
-        <div className="carousel-inner">
-          {images.slice(0, 5).map((image, index) => (
-            <div key={index} className={`carousel-item ${index === 0 ? 'active' : ''}`}>
-              <img src={image.url} className="d-block mx-auto" alt={`Photo ${index}`} style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
+    <>
+      <div className="background" style={{ backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1, filter: 'blur(10px)' }}></div>
+      <nav className="navbar navbar-dark bg-dark">
+        <div className="container-fluid">
+          <span className="navbar-brand mb-0 h1">James Krause Portfolio</span>
+        </div>
+      </nav>
+      <div className="pt-4"></div> {/* Padding added here */}
+      <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <div className="row">
+          {images.reverse().map((image, index) => (
+            <div key={index} className="col-md-6">
+              <div className="card" style={{ width: '100%', height: '400px', marginBottom: '8px', cursor: 'pointer' }} onClick={() => openModal(image)}>
+                <img src={image.url} className="card-img-top" alt={`Photo ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
             </div>
           ))}
         </div>
-        <button className="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-          <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span className="visually-hidden">Previous</span>
-        </button>
-        <button className="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-          <span className="carousel-control-next-icon" aria-hidden="true"></span>
-          <span className="visually-hidden">Next</span>
-        </button>
-      </div>
-      <h1 className="text-center my-4">All Images</h1>
-      <div className="row">
-        {images.map((image, index) => (
-          <div key={index} className="col-md-6">
-            <div className="card" style={{ width: '100%', height: '400px', marginBottom: '8px', cursor: 'pointer' }} onClick={() => openModal(image)}>
-              <img src={image.url} className="card-img-top" alt={`Photo ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* Bootstrap Modal for Image */}
-      <div className="modal fade" id="imageModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div className="modal-dialog modal-xl modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header">
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div className="modal-body">
-              {selectedImage && <img src={selectedImage.url} className="img-fluid" alt="Selected" style={{ maxWidth: '100%', maxHeight: '100%' }} />}
+        {/* Bootstrap Modal for Image */}
+        <div className="modal fade" id="imageModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div className="modal-dialog modal-dialog-centered modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">{selectedImage ? selectedImage.name : ''}</h5>
+                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div className="modal-body text-center">
+                {selectedImage && <img src={selectedImage.url} className="img-fluid" alt="Selected" />}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
