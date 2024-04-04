@@ -8,37 +8,43 @@ firebase.initializeApp(firebaseConfig);
 const ImageGallery = () => {
   const [images, setImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const imagesPerPage = 10;
 
   useEffect(() => {
     fetchImages();
-  }, []);
-
-  useEffect(() => {
-    if (images.length > 0) {
-      const randomIndex = Math.floor(Math.random() * images.length);
-      const randomImageUrl = images[randomIndex].url;
-      document.querySelector('.background').style.backgroundImage = `url(${randomImageUrl})`;
-    }
-  }, [images]);
+  }, [currentPage]);
 
   const fetchImages = async () => {
+    setLoading(true); // Show loading indicator
+
     const storageRef = firebase.storage().ref();
     const imagesRef = storageRef.child('images');
     const imageList = await imagesRef.listAll();
 
-    const urls = await Promise.all(imageList.items.map(async (item) => {
-      const url = await item.getDownloadURL();
-      return { url, name: item.name };
-    }));
+    const startAt = (currentPage - 1) * imagesPerPage;
+    const endAt = startAt + imagesPerPage;
 
-    // Sort images by filename in descending order
-    urls.sort((a, b) => {
-      if (a.name < b.name) return 1;
-      if (a.name > b.name) return -1;
-      return 0;
-    });
+    const urls = await Promise.all(
+      imageList.items.slice(startAt, endAt).map(async (item) => {
+        const url = await item.getDownloadURL();
+        return { url, name: item.name };
+      })
+    );
 
-    setImages(urls);
+    // Reverse the order of images
+    setImages(urls.reverse());
+    setRandomBackgroundImage(urls); // Set background image once images are fetched
+    setLoading(false); // Hide loading indicator
+  };
+
+  const setRandomBackgroundImage = (urls) => {
+    if (urls.length > 0) {
+      const randomIndex = Math.floor(Math.random() * urls.length);
+      const randomImageUrl = urls[randomIndex].url;
+      document.querySelector('.background').style.backgroundImage = `url(${randomImageUrl})`;
+    }
   };
 
   const openModal = (image) => {
@@ -47,9 +53,27 @@ const ImageGallery = () => {
     modal.show();
   };
 
+  const nextPage = () => {
+    setCurrentPage(currentPage + 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to the top
+  };
+
+  const prevPage = () => {
+    setCurrentPage(currentPage - 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to the top
+  };
+
   return (
     <>
-      <div className="background" style={{ backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1, filter: 'blur(10px)' }}></div>
+      <div className="background" style={{ backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1, filter: 'blur(10px)' }}>
+        {loading && ( // Show loading indicator if loading state is true
+          <div className="d-flex justify-content-center my-4">
+            <div className="spinner-border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        )}
+      </div>
       <nav className="navbar navbar-dark bg-dark">
         <div className="container-fluid">
           <span className="navbar-brand mb-0 h1">James Krause Portfolio</span>
@@ -58,13 +82,17 @@ const ImageGallery = () => {
       <div className="pt-4"></div> {/* Padding added here */}
       <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
         <div className="row">
-          {images.reverse().map((image, index) => (
+          {images.map((image, index) => (
             <div key={index} className="col-md-6">
               <div className="card" style={{ width: '100%', height: '400px', marginBottom: '8px', cursor: 'pointer' }} onClick={() => openModal(image)}>
                 <img src={image.url} className="card-img-top" alt={`Photo ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             </div>
           ))}
+        </div>
+        <div className="d-flex justify-content-center mt-3">
+          <button className="btn btn-primary me-2" onClick={prevPage} disabled={currentPage === 1}>Previous</button>
+          <button className="btn btn-primary" onClick={nextPage}>Next</button>
         </div>
         {/* Bootstrap Modal for Image */}
         <div className="modal fade" id="imageModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
