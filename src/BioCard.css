@@ -1,0 +1,5 @@
+.card.bio-card {
+    width: 95%; /* Adjust the max-width as needed */
+    max-width: 800px;
+    margin: 20px auto; /* Added margin */
+  }

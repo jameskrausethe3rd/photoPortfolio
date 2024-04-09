@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/storage';
 import firebaseConfig from './firebaseConfig';
+import './App.css';
+import ImageCard from './ImageCard';
+import Navbar from './Navbar';
+import NavigationButtons from './NavigationButtons';
+import ImageModal from './ImageModal';
+import BioCard from './BioCard';
 
 firebase.initializeApp(firebaseConfig);
 
@@ -17,7 +23,7 @@ const ImageGallery = () => {
   }, [currentPage]);
 
   const fetchImages = async () => {
-    setLoading(true); // Show loading indicator
+    setLoading(true);
 
     const storageRef = firebase.storage().ref();
     const imagesRef = storageRef.child('images');
@@ -33,18 +39,8 @@ const ImageGallery = () => {
       })
     );
 
-    // Reverse the order of images
     setImages(urls.reverse());
-    setRandomBackgroundImage(urls); // Set background image once images are fetched
-    setLoading(false); // Hide loading indicator
-  };
-
-  const setRandomBackgroundImage = (urls) => {
-    if (urls.length > 0) {
-      const randomIndex = Math.floor(Math.random() * urls.length);
-      const randomImageUrl = urls[randomIndex].url;
-      document.querySelector('.background').style.backgroundImage = `url(${randomImageUrl})`;
-    }
+    setLoading(false);
   };
 
   const openModal = (image) => {
@@ -55,59 +51,27 @@ const ImageGallery = () => {
 
   const nextPage = () => {
     setCurrentPage(currentPage + 1);
-    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to the top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const prevPage = () => {
     setCurrentPage(currentPage - 1);
-    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to the top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <>
-      <div className="background" style={{ backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1, filter: 'blur(10px)' }}>
-        {loading && ( // Show loading indicator if loading state is true
-          <div className="d-flex justify-content-center my-4">
-            <div className="spinner-border" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-          </div>
-        )}
-      </div>
-      <nav className="navbar navbar-dark bg-dark">
-        <div className="container-fluid">
-          <span className="navbar-brand mb-0 h1">James Krause Portfolio</span>
-        </div>
-      </nav>
-      <div className="pt-4"></div> {/* Padding added here */}
-      <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <Navbar />
+      <div className="background"></div>
+      <BioCard />
+      <div className="grid-container">
         <div className="row">
           {images.map((image, index) => (
-            <div key={index} className="col-md-6">
-              <div className="card" style={{ width: '100%', height: '400px', marginBottom: '8px', cursor: 'pointer' }} onClick={() => openModal(image)}>
-                <img src={image.url} className="card-img-top" alt={`Photo ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
-            </div>
+            <ImageCard key={index} image={image} openModal={openModal} />
           ))}
         </div>
-        <div className="d-flex justify-content-center mt-3">
-          <button className="btn btn-primary me-2" onClick={prevPage} disabled={currentPage === 1}>Previous</button>
-          <button className="btn btn-primary" onClick={nextPage}>Next</button>
-        </div>
-        {/* Bootstrap Modal for Image */}
-        <div className="modal fade" id="imageModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div className="modal-dialog modal-dialog-centered modal-lg">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">{selectedImage ? selectedImage.name : ''}</h5>
-                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div className="modal-body text-center">
-                {selectedImage && <img src={selectedImage.url} className="img-fluid" alt="Selected" />}
-              </div>
-            </div>
-          </div>
-        </div>
+        <NavigationButtons prevPage={prevPage} nextPage={nextPage} currentPage={currentPage} />
+        <ImageModal selectedImage={selectedImage} />
       </div>
     </>
   );
