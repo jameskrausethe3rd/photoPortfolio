@@ -8,6 +8,7 @@ import Navbar from './Navbar';
 import NavigationButtons from './NavigationButtons';
 import ImageModal from './ImageModal';
 import BioCard from './BioCard';
+import FadeIn from 'react-fade-in';
 
 firebase.initializeApp(firebaseConfig);
 
@@ -63,16 +64,20 @@ const ImageGallery = () => {
     <>
       <Navbar />
       <div className="background"></div>
-      <BioCard />
-      <div className="grid-container">
-        <div className="row">
-          {images.map((image, index) => (
-            <ImageCard key={index} image={image} openModal={openModal} />
-          ))}
+      <FadeIn>
+        <BioCard />
+        <div className="grid-container">
+          <FadeIn>
+            <div className="row">
+              {images.map((image, index) => (
+                <ImageCard key={index} image={image} openModal={openModal} />
+              ))}
+            </div>
+          </FadeIn>
+          <NavigationButtons prevPage={prevPage} nextPage={nextPage} currentPage={currentPage} />
+          <ImageModal selectedImage={selectedImage} />
         </div>
-        <NavigationButtons prevPage={prevPage} nextPage={nextPage} currentPage={currentPage} />
-        <ImageModal selectedImage={selectedImage} />
-      </div>
+      </FadeIn>
     </>
   );
 };
