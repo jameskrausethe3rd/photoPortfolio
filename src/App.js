@@ -25,22 +25,27 @@ const ImageGallery = () => {
 
   const fetchImages = async () => {
     setLoading(true);
-
+  
     const storageRef = firebase.storage().ref();
     const imagesRef = storageRef.child('images');
     const imageList = await imagesRef.listAll();
-
+  
     const startAt = (currentPage - 1) * imagesPerPage;
     const endAt = startAt + imagesPerPage;
-
+  
     const urls = await Promise.all(
       imageList.items.slice(startAt, endAt).map(async (item) => {
         const url = await item.getDownloadURL();
         return { url, name: item.name };
       })
     );
-
-    setImages((prevImages) => [...prevImages, ...urls]); // Concatenate new images with previous images
+  
+    setImages((prevImages) => {
+      // Filter out existing images from the new batch
+      const filteredUrls = urls.filter((newImage) => !prevImages.some((image) => image.url === newImage.url));
+      // Concatenate filtered new images with previous images
+      return [...prevImages, ...filteredUrls];
+    });
     setLoading(false);
   };
 
@@ -52,6 +57,7 @@ const ImageGallery = () => {
 
   const loadMore = () => {
     setCurrentPage((prevPage) => prevPage + 1); // Increment current page
+    fetchImages(); // Fetch more images when "Load More" button is clicked
   };
 
   return (
