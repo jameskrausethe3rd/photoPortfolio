@@ -1,10 +1,12 @@
 import React from 'react';
+import './NavigationButtons.css';
 
-const NavigationButtons = ({ prevPage, nextPage, currentPage }) => {
+const NavigationButtons = ({ loadMore, currentPage }) => {
   return (
-    <div className="d-flex justify-content-center mt-3">
-      <button className="btn btn-danger me-2" onClick={prevPage} disabled={currentPage === 1}>Previous</button>
-      <button className="btn btn-danger" onClick={nextPage}>Next</button>
+    <div className="navigation-buttons-container"> {/* Add a parent container */}
+      <button onClick={loadMore} className="btn btn-primary">
+        Load More
+      </button>
     </div>
   );
 };

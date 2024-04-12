@@ -40,7 +40,7 @@ const ImageGallery = () => {
       })
     );
 
-    setImages(urls.reverse());
+    setImages((prevImages) => [...prevImages, ...urls]); // Concatenate new images with previous images
     setLoading(false);
   };
 
@@ -50,14 +50,8 @@ const ImageGallery = () => {
     modal.show();
   };
 
-  const nextPage = () => {
-    setCurrentPage(currentPage + 1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const prevPage = () => {
-    setCurrentPage(currentPage - 1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const loadMore = () => {
+    setCurrentPage((prevPage) => prevPage + 1); // Increment current page
   };
 
   return (
@@ -67,14 +61,12 @@ const ImageGallery = () => {
       <FadeIn>
         <BioCard />
         <div className="grid-container">
-          <FadeIn>
-            <div className="row">
-              {images.map((image, index) => (
-                <ImageCard key={index} image={image} openModal={openModal} />
-              ))}
-            </div>
-          </FadeIn>
-          <NavigationButtons prevPage={prevPage} nextPage={nextPage} currentPage={currentPage} />
+          <div className="row">
+            {images.map((image, index) => (
+              <ImageCard key={index} image={image} openModal={openModal} />
+            ))}
+          </div>
+          {images.length > 0 && <NavigationButtons loadMore={loadMore} currentPage={currentPage} />}
           <ImageModal selectedImage={selectedImage} />
         </div>
       </FadeIn>
