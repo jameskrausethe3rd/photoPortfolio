@@ -16,7 +16,6 @@ const ImageGallery = () => {
   const [images, setImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState(false);
   const imagesPerPage = 10;
 
   useEffect(() => {
@@ -24,17 +23,17 @@ const ImageGallery = () => {
   }, [currentPage]);
 
   const fetchImages = async () => {
-    setLoading(true);
-  
     const storageRef = firebase.storage().ref();
     const imagesRef = storageRef.child('images');
     const imageList = await imagesRef.listAll();
   
     const startAt = (currentPage - 1) * imagesPerPage;
     const endAt = startAt + imagesPerPage;
-  
+
+    // Uses slice to create a copy of the array and reverse it, 
+    // then get the first 10 images.
     const urls = await Promise.all(
-      imageList.items.slice(startAt, endAt).map(async (item) => {
+      imageList.items.slice().reverse().slice(startAt, endAt).map(async (item) => {
         const url = await item.getDownloadURL();
         return { url, name: item.name };
       })
@@ -46,7 +45,6 @@ const ImageGallery = () => {
       // Concatenate filtered new images with previous images
       return [...prevImages, ...filteredUrls];
     });
-    setLoading(false);
   };
 
   const openModal = (image) => {
