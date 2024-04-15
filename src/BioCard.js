@@ -12,8 +12,11 @@ const BioCard = () => {
         </p>
         <p className="card-text">
           My passion lies in automotive photography, where I dive deep into the world of cars to uncover their unique stories. 
-          From sleek sports cars to rugged off-roaders, I aim to capture the exhilarating spirit of each ride. 
+          From sleek sports cars to rare exotics, I aim to capture the exhilarating spirit of each ride. 
           Join me on this thrilling journey as we explore the captivating world of automotive photography together.
+        </p>
+        <p>
+          And don't forget to view my posts over on <a href="https://www.instagram.com/three.point.slow.t/" class="link-underline-primary">Instagram!</a>
         </p>
       </div>
     </div>
