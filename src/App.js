@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/storage';
 import firebaseConfig from './firebaseConfig';
@@ -19,8 +19,40 @@ const ImageGallery = () => {
   const imagesPerPage = 10;
 
   useEffect(() => {
+    // Set overflow-y property of body to 'scroll' by default
+    document.body.style.overflowY = 'scroll';
+
     fetchImages();
   }, [currentPage]);
+
+  const useScrollbarWidth = () => {
+    const didCompute = useRef(false);
+    const widthRef = useRef(0);
+  
+    if (didCompute.current) return widthRef.current;
+  
+    // Creating invisible container
+    const outer = document.createElement('div');
+    outer.style.visibility = 'hidden';
+    outer.style.overflow = 'scroll'; // forcing scrollbar to appear
+    outer.style.msOverflowStyle = 'scrollbar'; // needed for WinJS apps
+    document.body.appendChild(outer);
+  
+    // Creating inner element and placing it in the container
+    const inner = document.createElement('div');
+    outer.appendChild(inner);
+  
+    // Calculating difference between container's full width and the child width
+    const scrollbarWidth = (outer.offsetWidth - inner.offsetWidth)/2;
+  
+    // Removing temporary elements from the DOM
+    outer.parentNode.removeChild(outer);
+  
+    didCompute.current = true;
+    widthRef.current = scrollbarWidth;
+  
+    return scrollbarWidth;
+  };
 
   const fetchImages = async () => {
     const storageRef = firebase.storage().ref();
@@ -30,8 +62,6 @@ const ImageGallery = () => {
     const startAt = (currentPage - 1) * imagesPerPage;
     const endAt = startAt + imagesPerPage;
 
-    // Uses slice to create a copy of the array and reverse it, 
-    // then get the first 10 images.
     const urls = await Promise.all(
       imageList.items.slice().reverse().slice(startAt, endAt).map(async (item) => {
         const url = await item.getDownloadURL();
@@ -58,22 +88,24 @@ const ImageGallery = () => {
     fetchImages(); // Fetch more images when "Load More" button is clicked
   };
 
+  const scrollbarWidth = useScrollbarWidth();
+
   return (
     <>
       <Navbar />
-      <div className="background"></div>
-      <FadeIn>
-        <BioCard />
-        <div className="grid-container">
-          <div className="row">
-            {images.map((image, index) => (
-              <ImageCard key={index} image={image} openModal={openModal} />
-            ))}
+        <div className="background"></div>
+        <FadeIn>
+          <BioCard />
+          <div className="grid-container">
+            <div className="row">
+              {images.map((image, index) => (
+                <ImageCard key={index} image={image} openModal={openModal} />
+              ))}
+            </div>
+            {images.length > 0 && <NavigationButtons loadMore={loadMore} currentPage={currentPage} />}
+            <ImageModal selectedImage={selectedImage} scrollbarWidth={scrollbarWidth} />
           </div>
-          {images.length > 0 && <NavigationButtons loadMore={loadMore} currentPage={currentPage} />}
-          <ImageModal selectedImage={selectedImage} />
-        </div>
-      </FadeIn>
+        </FadeIn>
     </>
   );
 };
