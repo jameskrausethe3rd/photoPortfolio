@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/storage';
 import firebaseConfig from './firebaseConfig';
 import './App.css';
 import ImageCard from './ImageCard';
 import Navbar from './Navbar';
-import NavigationButtons from './NavigationButtons';
 import ImageModal from './ImageModal';
 import BioCard from './BioCard';
 import FadeIn from 'react-fade-in';
@@ -17,65 +16,65 @@ const ImageGallery = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const imagesPerPage = 10;
+  const observerRef = useRef(null);
 
-  useEffect(() => {
-    // Set overflow-y property of body to 'scroll' by default
-    document.body.style.overflowY = 'scroll';
-
-    fetchImages();
-  }, [currentPage]);
-
-  const useScrollbarWidth = () => {
-    const didCompute = useRef(false);
-    const widthRef = useRef(0);
-  
-    if (didCompute.current) return widthRef.current;
-  
-    // Creating invisible container
-    const outer = document.createElement('div');
-    outer.style.visibility = 'hidden';
-    outer.style.overflow = 'scroll'; // forcing scrollbar to appear
-    outer.style.msOverflowStyle = 'scrollbar'; // needed for WinJS apps
-    document.body.appendChild(outer);
-  
-    // Creating inner element and placing it in the container
-    const inner = document.createElement('div');
-    outer.appendChild(inner);
-  
-    // Calculating difference between container's full width and the child width
-    const scrollbarWidth = (outer.offsetWidth - inner.offsetWidth)/2;
-  
-    // Removing temporary elements from the DOM
-    outer.parentNode.removeChild(outer);
-  
-    didCompute.current = true;
-    widthRef.current = scrollbarWidth;
-  
-    return scrollbarWidth;
-  };
-
-  const fetchImages = async () => {
+  const fetchImages = useCallback(async () => {
     const storageRef = firebase.storage().ref();
     const imagesRef = storageRef.child('images');
     const imageList = await imagesRef.listAll();
-  
+
+    // Reverse the entire list of items first
+    const reversedItems = imageList.items.reverse();
+
     const startAt = (currentPage - 1) * imagesPerPage;
     const endAt = startAt + imagesPerPage;
 
+    // Slice the reversed list for pagination
     const urls = await Promise.all(
-      imageList.items.slice().reverse().slice(startAt, endAt).map(async (item) => {
+      reversedItems.slice(startAt, endAt).map(async (item) => {
         const url = await item.getDownloadURL();
         return { url, name: item.name };
       })
     );
-  
+
+    // Sort the images by name in descending order
+    const sortedUrls = urls.sort((a, b) => b.name.localeCompare(a.name));
+
     setImages((prevImages) => {
-      // Filter out existing images from the new batch
-      const filteredUrls = urls.filter((newImage) => !prevImages.some((image) => image.url === newImage.url));
-      // Concatenate filtered new images with previous images
+      const filteredUrls = sortedUrls.filter(
+        (newImage) => !prevImages.some((image) => image.url === newImage.url)
+      );
       return [...prevImages, ...filteredUrls];
     });
-  };
+  }, [currentPage, imagesPerPage]);
+
+  useEffect(() => {
+    fetchImages();
+  }, [fetchImages]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setCurrentPage((prevPage) => prevPage + 1);
+        }
+      },
+      {
+        threshold: 0.5, // Trigger when 50% of the observer div is visible
+        rootMargin: "500px", // Trigger 200px before the observer div enters the viewport
+      }
+    );
+  
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
+  
+    return () => {
+      if (observerRef.current) {
+        observer.unobserve(observerRef.current);
+      }
+    };
+  }, []);
 
   const openModal = (image) => {
     setSelectedImage(image);
@@ -83,29 +82,22 @@ const ImageGallery = () => {
     modal.show();
   };
 
-  const loadMore = () => {
-    setCurrentPage((prevPage) => prevPage + 1); // Increment current page
-    fetchImages(); // Fetch more images when "Load More" button is clicked
-  };
-
-  const scrollbarWidth = useScrollbarWidth();
-
   return (
     <>
       <Navbar />
-        <div className="background"></div>
-        <FadeIn>
-          <BioCard />
-          <div className="grid-container">
-            <div className="row">
-              {images.map((image, index) => (
-                <ImageCard key={index} image={image} openModal={openModal} />
-              ))}
-            </div>
-            {images.length > 0 && <NavigationButtons loadMore={loadMore} currentPage={currentPage} />}
-            <ImageModal selectedImage={selectedImage} scrollbarWidth={scrollbarWidth} />
+      <div className="background"></div>
+      <FadeIn>
+        <BioCard />
+        <div className="grid-container">
+          <div className="row">
+            {images.map((image, index) => (
+              <ImageCard key={index} image={image} openModal={openModal} />
+            ))}
           </div>
-        </FadeIn>
+          <div ref={observerRef} style={{ height: '1px' }}></div>
+          <ImageModal selectedImage={selectedImage} />
+        </div>
+      </FadeIn>
     </>
   );
 };

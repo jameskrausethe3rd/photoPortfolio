@@ -1,21 +1,22 @@
-/* ImageCard.css */
-
 .card.image-card {
   width: 100%;
   height: 400px;
   margin-bottom: 12px;
   cursor: pointer;
-  opacity: 0;
-  animation-name: fadein;
-  animation-duration: 2000ms;
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards;
+  position: relative;
+  overflow: hidden;
 }
 
 .image-card-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.image-card-img.visible {
+  opacity: 1;
 }
 
 .spinner-overlay {
@@ -28,14 +29,5 @@
   justify-content: center;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.5); /* Optional: Add a semi-transparent overlay */
-}
-
-@keyframes fadein {
-  0% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
+  z-index: 1;
 }

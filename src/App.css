@@ -24,6 +24,14 @@
   color: white;
 }
 
+.card {
+  box-shadow: rgba(0, 0, 0, 0.514) -25px 15px 30px -10px;
+}
+
+.border {
+  --bs-border-width: 2px;
+}
+
 .App-link {
   color: #61dafb;
 }
@@ -38,7 +46,7 @@
 }
 
 .background {
-  background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+  background: linear-gradient(90deg, #adabab 0%, #f5f5f5 70%, #d4d4d4 100%);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
