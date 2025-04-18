@@ -25,7 +25,7 @@
 }
 
 .card {
-  box-shadow: rgba(0, 0, 0, 0.514) -25px 15px 30px -10px;
+  box-shadow: rgba(0, 0, 0, 0.514) -15px 15px 30px -2px;
 }
 
 .border {
@@ -60,7 +60,7 @@
 
 .grid-container {
   width: 95%; /* Adjust the max-width as needed */
-  max-width: 800px;
+  max-width: 1500px;
   margin: 20px auto; /* Added margin */
 }
 

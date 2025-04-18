@@ -4,7 +4,6 @@ import './BioCard.css'; // Import CSS file for BioCard styles
 const BioCard = () => {
   return (
     <div className="card bio-card">
-      <div className="card-header">About Me</div>
       <div className="card-body">
         <p className="card-text">
           Hey there, I'm James Krause, and I'm all about capturing the essence of cars through photography. 

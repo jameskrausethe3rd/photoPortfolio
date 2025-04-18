@@ -1,21 +1,69 @@
-.card.image-card {
+.card-element-image {
   width: 100%;
-  height: 400px;
-  margin-bottom: 12px;
+  height: 600px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  object-fit: cover;
+  border-radius: 25px;
 }
 
-.image-card-img {
+.tilty::after {
+  box-shadow: inset rgba(0, 0, 0, 0.514) 0px 0px 15px 5px;
+  border: white 1px solid;
+  content: '';
+  display: block;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  border-radius: 25px;
+  pointer-events: none;
+}
+
+.tilty {
+  border-radius: 25px;
+  margin-bottom: 24px;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  box-shadow: rgba(0, 0, 0, 0.514) -15px 15px 30px -2px;
+}
+
+.tilty-glare {
+  position: relative;
+  z-index: 1;
+}
+
+.tilty-glare-wrapper {
+  border-radius: 25px;
+}
+
+/* Border on top with transparency or styling */
+.overlay-button {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 64px;
   opacity: 0;
+  pointer-events: none; /* So clicks go through to the image */
+  text-shadow: 1px 1px 5px black;
+  transform: translateZ(50px);
   transition: opacity 0.3s ease-in-out;
+  z-index: 10;
 }
 
-.image-card-img.visible {
+.card-element-image:hover ~ .overlay-button {
+  transition: opacity 0.3s ease-in-out;
+  opacity: 1;
+}
+
+.card-element-image.visible {
   opacity: 1;
 }
 

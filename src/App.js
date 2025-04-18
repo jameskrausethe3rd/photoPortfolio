@@ -7,7 +7,6 @@ import ImageCard from './ImageCard';
 import Navbar from './Navbar';
 import ImageModal from './ImageModal';
 import BioCard from './BioCard';
-import FadeIn from 'react-fade-in';
 
 firebase.initializeApp(firebaseConfig);
 
@@ -15,7 +14,7 @@ const ImageGallery = () => {
   const [images, setImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const imagesPerPage = 10;
+  const imagesPerPage = 24;
   const observerRef = useRef(null);
 
   const fetchImages = useCallback(async () => {
@@ -86,8 +85,7 @@ const ImageGallery = () => {
     <>
       <Navbar />
       <div className="background"></div>
-      <FadeIn>
-        <BioCard />
+      <BioCard />
         <div className="grid-container">
           <div className="row">
             {images.map((image, index) => (
@@ -97,7 +95,6 @@ const ImageGallery = () => {
           <div ref={observerRef} style={{ height: '1px' }}></div>
           <ImageModal selectedImage={selectedImage} />
         </div>
-      </FadeIn>
     </>
   );
 };
