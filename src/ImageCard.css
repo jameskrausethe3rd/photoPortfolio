@@ -19,6 +19,16 @@
   width: 100%;
   border-radius: 25px;
   pointer-events: none;
+  transition: backdrop-filter 0.1s ease-in-out;
+}
+
+.tilty:hover::after {
+  backdrop-filter: blur(5px);
+  transition: backdrop-filter 0.1s ease-in-out;
+}
+
+.spinner-overlay {
+  background-color: transparent !important;
 }
 
 .tilty {
@@ -64,7 +74,12 @@
 }
 
 .card-element-image.visible {
+  transition: opacity 0.3s ease-in-out;
   opacity: 1;
+}
+
+.card-element-image.hidden {
+  opacity: 0;
 }
 
 .spinner-overlay {
