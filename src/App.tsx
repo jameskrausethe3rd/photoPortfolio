@@ -1,6 +1,5 @@
 import Header from "./components/Header";
 import ImageGrid from "./components/ImageGrid";
-import DarkModeToggle from "./components/DarkModeToggle"; // Import the updated component
 import './App.css';
 
 function App() {
