@@ -7,14 +7,20 @@ type ImageItem = {
   date: string;
 };
 
-export const getImages = async (): Promise<Record<string, ImageItem[]>> => {
+export const getImages = async (
+  pageSize: number = 20,
+  nextIndex?: number
+): Promise<{ groupedImages: Record<string, ImageItem[]>; nextPageToken?: number }> => {
   const source = import.meta.env.VITE_IMAGE_SOURCE;
 
   if (source === 'firebase') {
-    return await fetchImagesFromFirebase();
+    const result = await fetchImagesFromFirebase(pageSize, nextIndex);
+    return {
+      groupedImages: result.groupedImages,
+      nextPageToken: result.nextIndex,
+    };
   }
 
-  // Fallback to local images
   const entries = Object.entries(localImageFiles);
   const resolvedImages: ImageItem[] = await Promise.all(
     entries.map(async ([path, importer]) => {
@@ -34,8 +40,8 @@ export const getImages = async (): Promise<Record<string, ImageItem[]>> => {
   }, {});
 
   const sortedGrouped = Object.fromEntries(
-    Object.entries(grouped).sort(([dateA], [dateB]) => dateB.localeCompare(dateA))
+    Object.entries(grouped).sort(([dateA,], [dateB,]) => dateB.localeCompare(dateA))
   );
 
-  return sortedGrouped;
+  return { groupedImages: sortedGrouped };
 };

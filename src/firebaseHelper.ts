@@ -1,15 +1,34 @@
 import { getStorage, ref, listAll, getDownloadURL } from 'firebase/storage';
-import { app } from './firebase'; // Your Firebase app initialization
+import { app } from './firebase';
 
 const storage = getStorage(app);
 
-// Helper function to fetch image URLs and group them by date
-export const fetchImagesFromFirebase = async (): Promise<Record<string, { src: string, date: string }[]>> => {
-  const imagesRef = ref(storage, 'images');
-  const imageList = await listAll(imagesRef);
+type ImageItem = {
+  src: string;
+  date: string;
+};
 
-  const images: { src: string, date: string }[] = await Promise.all(
-    imageList.items.map(async (item) => {
+let allSortedItemsCache: string[] | null = null;
+
+export const fetchImagesFromFirebase = async (
+  pageSize: number,
+  startIndex: number = 0
+): Promise<{ groupedImages: Record<string, ImageItem[]>; nextIndex?: number }> => {
+  const imagesRef = ref(storage, 'images');
+
+  // Cache listAll results (to avoid relisting every time)
+  if (!allSortedItemsCache) {
+    const result = await listAll(imagesRef);
+    allSortedItemsCache = result.items
+      .map(item => item.name)
+      .sort((a, b) => b.localeCompare(a)); // Descending order by filename
+  }
+
+  const itemsPage = allSortedItemsCache.slice(startIndex, startIndex + pageSize);
+  const imageRefs = itemsPage.map(name => ref(storage, `images/${name}`));
+
+  const images: ImageItem[] = await Promise.all(
+    imageRefs.map(async (item) => {
       const url = await getDownloadURL(item);
       const fileName = item.name;
       const dateMatch = fileName.match(/^\d{4}-\d{2}-\d{2}/);
@@ -18,22 +37,22 @@ export const fetchImagesFromFirebase = async (): Promise<Record<string, { src: s
     })
   );
 
-  // Group images by date
-  const groupedImages = images.reduce<Record<string, { src: string, date: string }[]>>((acc, image) => {
+  const grouped = images.reduce<Record<string, ImageItem[]>>((acc, image) => {
     if (!acc[image.date]) acc[image.date] = [];
     acc[image.date].push(image);
-
-    // Sort the images in each date group by filename in descending order
     acc[image.date].sort((a, b) => b.src.localeCompare(a.src));
-
     return acc;
   }, {});
 
-  // Sort the groups by date in descending order
   const sortedGrouped = Object.fromEntries(
-    Object.entries(groupedImages)
-      .sort(([dateA], [dateB]) => dateB.localeCompare(dateA))
+    Object.entries(grouped).sort(([a], [b]) => b.localeCompare(a))
   );
 
-  return sortedGrouped;
+  const nextIndex = startIndex + pageSize;
+  const hasMore = allSortedItemsCache.length > nextIndex;
+
+  return {
+    groupedImages: sortedGrouped,
+    nextIndex: hasMore ? nextIndex : undefined,
+  };
 };

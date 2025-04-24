@@ -19,7 +19,7 @@ const motionProps = {
 const ImageItem: React.FC<ImageItemProps> = ({ src, index }) => {
   return (
     <motion.div
-      className="aspect-square relative overflow-hidden bg-gray-200 shadow-xl"
+      className="aspect-square relative overflow-hidden bg-gray-200"
       {...motionProps}
       transition={{ ...motionProps.transition, delay: index * 0.1 }} // Staggered delay for each image
     >
