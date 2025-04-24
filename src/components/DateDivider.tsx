@@ -8,7 +8,7 @@ interface DateDividerProps {
 const DateDivider: React.FC<DateDividerProps> = ({ date }) => {
   return (
     <div>
-      <h2 className="relative text-xl font-semibold text-center bg-white dark:bg-gray-800 p-4 rounded-md border dark:border border-gray-300 dark:border-gray-1000">
+      <h2 className="relative text-xl font-semibold text-center bg-white dark:bg-gray-800 p-4 rounded-lg">
         {formatDate(date)}
       </h2>
     </div>

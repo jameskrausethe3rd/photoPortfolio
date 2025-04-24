@@ -23,14 +23,14 @@ function App() {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 w-full h-full m-auto p-8">
+    <div className="bg-white dark:bg-slate-900 w-full h-full m-auto p-0">
       <div className="max-w-7xl m-auto">
         <div className="min-h-screen bg-white text-gray-800 dark:bg-gray-900 dark:text-white shadow-xl/40">
           <Header />
           <main className="relative">
             <button
               onClick={toggleDarkMode}
-              className="fixed top-4 right-4 z-50 px-4 py-2 rounded border text-sm bg-gray-200 dark:bg-gray-700 text-white dark:text-white shadow"
+              className="fixed top-4 right-4 z-50 px-4 py-2 rounded border text-sm bg-gray-700 dark:bg-gray-100 text-white dark:text-black shadow"
             >
               {isDark ? "Light Mode" : "Dark Mode"}
             </button>

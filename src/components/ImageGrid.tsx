@@ -118,7 +118,7 @@ const ImageGrid = () => {
               initial={{ opacity: 0, translateY: 100 }}
               animate={{ opacity: 1, translateY: 0 }}
               transition={{ duration: 0.4, delay: dividerDelay }}
-              className='relative mb-4 sticky top-0 bg-white z-10 rounded-md shadow-lg/20'
+              className='relative mb-4 sticky top-0 z-10 shadow-lg/20'
             >
               <DateDivider date={date} />
             </motion.div>
