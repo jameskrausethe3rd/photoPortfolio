@@ -7,6 +7,9 @@ type ImageItem = {
   date: string;
 };
 
+// Utility function to introduce a delay
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export const getImages = async (
   pageSize: number = 20,
   nextIndex?: number
@@ -20,6 +23,8 @@ export const getImages = async (
       nextPageToken: result.nextIndex,
     };
   }
+
+  await delay(0);
 
   const entries = Object.entries(localImageFiles);
   const resolvedImages: ImageItem[] = await Promise.all(

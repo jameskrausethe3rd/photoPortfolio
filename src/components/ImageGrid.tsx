@@ -118,7 +118,7 @@ const ImageGrid = () => {
               initial={{ opacity: 0, translateY: 100 }}
               animate={{ opacity: 1, translateY: 0 }}
               transition={{ duration: 0.4, delay: dividerDelay }}
-              className='relative mb-4 sticky top-0 z-10 shadow-lg/20'
+              className='relative mb-4 sticky top-0 z-10'
             >
               <DateDivider date={date} />
             </motion.div>
@@ -129,7 +129,6 @@ const ImageGrid = () => {
                 const delay = isNew ? newBatchIndex * 0.05 : 0;
                 if (isNew) newBatchIndex++;
 
-                // Check if the image has loaded
                 const isImageLoaded = imageLoaded[img.src];
 
                 return (
@@ -140,11 +139,10 @@ const ImageGrid = () => {
                     animate={{ opacity: 1, translateY: 0 }}
                     transition={{ duration: 0.4, delay }}
                   >
-                    {/* If the image is not loaded, show a loading spinner */}
                     {!isImageLoaded && (
                     <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
                         {/* Spinner */}
-                        <div className="border-4 border-t-4 border-gray-300 dark:border-gray-500 border-solid rounded-full w-8 h-8 animate-spin"></div>
+                        <div className="w-8 h-8 border-4 border-gray-500 border-t-transparent border-solid rounded-full animate-spin"></div>
                     </div>
                     )}
 
@@ -168,8 +166,8 @@ const ImageGrid = () => {
       <div ref={sentinelRef} className="h-1" />
 
       {loading && (
-        <div className="text-center py-4 text-gray-500">
-          Loading more images…
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="w-8 h-8 border-4 border-gray-500 border-t-transparent border-solid rounded-full animate-spin"></div>
         </div>
       )}
     </div>
