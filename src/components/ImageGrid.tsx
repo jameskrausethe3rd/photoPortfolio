@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import DateDivider from './DateDivider';
 import { getImages } from '../getImages';
+import FloatingActionButton from './FloatingActionButton';
 
 type ImageItem = {
   src: string;
@@ -13,7 +14,7 @@ const ImageGrid = () => {
   const [nextStartIndex, setNextStartIndex] = useState<number | undefined>(0);
   const [loading, setLoading] = useState(false);
   const [newImageSrcs, setNewImageSrcs] = useState<Set<string>>(new Set());
-  
+
   // A map to track the loaded state of each image by src
   const [imageLoaded, setImageLoaded] = useState<Record<string, boolean>>({});
 
@@ -113,7 +114,7 @@ const ImageGrid = () => {
         const dividerDelay = hasNew ? newBatchIndex * 0.05 : 0;
 
         return (
-          <div key={date} className="mb-12">
+          <div key={date} className="mb-20">
             <motion.div
               initial={{ opacity: 0, translateY: 100 }}
               animate={{ opacity: 1, translateY: 0 }}
@@ -140,10 +141,10 @@ const ImageGrid = () => {
                     transition={{ duration: 0.4, delay }}
                   >
                     {!isImageLoaded && (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
+                      <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
                         {/* Spinner */}
                         <div className="w-8 h-8 border-4 border-gray-500 border-t-transparent border-solid rounded-full animate-spin"></div>
-                    </div>
+                      </div>
                     )}
 
                     {/* Actual image */}
@@ -170,6 +171,8 @@ const ImageGrid = () => {
           <div className="w-8 h-8 border-4 border-gray-500 border-t-transparent border-solid rounded-full animate-spin"></div>
         </div>
       )}
+
+      <FloatingActionButton />
     </div>
   );
 };

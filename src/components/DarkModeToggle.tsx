@@ -23,7 +23,7 @@ const DarkModeToggle: React.FC = () => {
   return (
     <button
       onClick={toggleDarkMode}
-      className="w-10 h-10 flex items-center justify-center rounded border bg-gray-700 dark:bg-gray-100 text-white dark:text-black shadow relative"
+      className="w-full h-full flex items-center justify-center rounded border bg-gray-700 dark:bg-gray-100 text-white dark:text-black hover:bg-gray-500 dark:hover:bg-gray-500 shadow relative"
     >
       <Sun
         size={20}
