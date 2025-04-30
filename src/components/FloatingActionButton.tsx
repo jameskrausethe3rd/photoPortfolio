@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Settings } from "lucide-react";
 import DarkModeToggle from "./DarkModeToggle"; // Import your DarkModeToggle component
 
 export default function FloatingActionButton() {
@@ -66,7 +66,7 @@ export default function FloatingActionButton() {
                             aria-label="Floating Action"
                             onClick={handleClick}
                         >
-                            <Plus className="w-6 h-6" />
+                            <Settings className="w-6 h-6" />
                         </button>
                     </motion.div>
                 )}
