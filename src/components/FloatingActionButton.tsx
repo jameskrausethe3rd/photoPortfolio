@@ -41,10 +41,10 @@ export default function FloatingActionButton() {
                     <motion.div
                         key="dim-overlay"
                         initial={{ opacity: 0 }}
-                        animate={{ opacity: 0.5 }}
+                        animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-40"
+                        className="fixed top-0 left-0 w-full h-full bg-black/40 z-40"
                         onClick={closeMenu} // Close menu when overlay is clicked
                     />
                 )}
