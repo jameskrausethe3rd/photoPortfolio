@@ -1,20 +1,26 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings } from "lucide-react";
-import DarkModeToggle from "./DarkModeToggle"; // Import your DarkModeToggle component
+import DarkModeToggle from "./DarkModeToggle";
+import SortingToggle from "./SortingToggle";
 
-export default function FloatingActionButton() {
+interface FloatingActionButtonProps {
+    isDescending: boolean;
+    setIsDescending: (value: boolean) => void;
+}
+
+export default function FloatingActionButton({ isDescending, setIsDescending }: FloatingActionButtonProps) {
     const [visible, setVisible] = useState(true);
-    const [menuOpen, setMenuOpen] = useState(false); // To control menu visibility
+    const [menuOpen, setMenuOpen] = useState(false);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         const handleScroll = () => {
-            setMenuOpen(false); // Close the menu if the user scrolls
-            setVisible(false);   // Hide FAB during scroll
+            setMenuOpen(false);
+            setVisible(false);
             if (timeoutRef.current) clearTimeout(timeoutRef.current);
             timeoutRef.current = setTimeout(() => {
-                setVisible(true); // Reappear after scroll pause
+                setVisible(true);
             }, 1000);
         };
 
@@ -26,16 +32,15 @@ export default function FloatingActionButton() {
     }, []);
 
     const handleClick = () => {
-        setMenuOpen((prev) => !prev); // Toggle menu visibility
+        setMenuOpen((prev) => !prev);
     };
 
     const closeMenu = () => {
-        setMenuOpen(false); // Close menu when an option is clicked
+        setMenuOpen(false);
     };
 
     return (
         <div className="relative">
-            {/* Dim background when menu is open */}
             <AnimatePresence>
                 {menuOpen && (
                     <motion.div
@@ -45,12 +50,11 @@ export default function FloatingActionButton() {
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
                         className="fixed top-0 left-0 w-full h-full bg-black/40 z-40"
-                        onClick={closeMenu} // Close menu when overlay is clicked
+                        onClick={closeMenu}
                     />
                 )}
             </AnimatePresence>
 
-            {/* FAB */}
             <AnimatePresence>
                 {visible && (
                     <motion.div
@@ -76,7 +80,7 @@ export default function FloatingActionButton() {
                 {menuOpen && (
                     <div>
                         <motion.div
-                            key="menu"
+                            key="darkModeToggle"
                             initial={{ opacity: 0, x: 100 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: 100 }}
@@ -84,6 +88,16 @@ export default function FloatingActionButton() {
                             className="fixed bottom-24 right-6 z-50 rounded-lg hover:bg-gray-500 shadow-lg w-14 h-14"
                         >
                             <DarkModeToggle />
+                        </motion.div>
+                        <motion.div
+                            key="sortingToggle"
+                            initial={{ opacity: 0, x: 100 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 100 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                            className="fixed bottom-42 right-6 z-50 rounded-lg hover:bg-gray-500 shadow-lg w-14 h-14"
+                        >
+                            <SortingToggle isDescending={isDescending} setIsDescending={setIsDescending} />
                         </motion.div>
                     </div>
                 )}
